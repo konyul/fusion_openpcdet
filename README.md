@@ -40,14 +40,12 @@ fusion_openpcdet repository
   pip install mmsegmentation==0.20.0
 
   apt-get install libgl1-mesa-glx
-
+  
+  pip install kornia
+  
 }
 
 
-
-check if pcdet/ops/voxel/voxel_layer is compiled
-
-  if not python setup.py develop on fusion_openpcdet repository
 
 
 
