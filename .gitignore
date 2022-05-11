@@ -13,5 +13,7 @@ venv/
 *.pkl
 *.zip
 *.bin
+*.jpg
 output
 version.py
+mmdetection3d

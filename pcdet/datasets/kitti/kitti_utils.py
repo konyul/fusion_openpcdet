@@ -64,3 +64,19 @@ def calib_to_matricies(calib):
     V2R = R0 @ V2C
     P2 = calib.P2
     return V2R, P2
+
+
+def calib_to_matriciesv2(calib):
+    """
+    Converts calibration object to transformation matricies
+    Args:
+        calib: calibration.Calibration, Calibration object
+    Returns
+        V2R: (4, 4), Lidar to rectified camera transformation matrix
+        P2: (3, 4), Camera projection matrix
+    """
+    r0_ = np.concatenate([calib.R0, np.array([[0., 0., 0.]])], axis=0)
+    rect = np.concatenate([r0_,np.array([0,0,0,1])[...,np.newaxis]],axis=-1)
+    p2 = np.concatenate([calib.P2,np.array([[0.,0.,0.,1]])],axis=0)
+    v2c = np.concatenate([calib.V2C,np.array([[0.,0.,0.,1]])],axis=0)
+    return p2 @ rect @ v2c

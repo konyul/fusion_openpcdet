@@ -5,7 +5,6 @@ import numpy as np
 from ...utils import common_utils
 from . import augmentor_utils, database_sampler
 
-
 class DataAugmentor(object):
     def __init__(self, root_path, augmentor_configs, class_names, logger=None):
         self.root_path = root_path
@@ -60,23 +59,28 @@ class DataAugmentor(object):
         rot_range = config['WORLD_ROT_ANGLE']
         if not isinstance(rot_range, list):
             rot_range = [-rot_range, rot_range]
-        gt_boxes, points = augmentor_utils.global_rotation(
+        gt_boxes, points, rot_mat = augmentor_utils.global_rotation(
             data_dict['gt_boxes'], data_dict['points'], rot_range=rot_range
         )
         
         data_dict['gt_boxes'] = gt_boxes
         data_dict['points'] = points
+        data_dict['pcd_rotation'] = rot_mat
+        data_dict['transformation_3d_flow'] = []
+        data_dict['transformation_3d_flow'].append('R')
         return data_dict
     
     def random_world_scaling(self, data_dict=None, config=None):
         if data_dict is None:
             return partial(self.random_world_scaling, config=config)
-        gt_boxes, points = augmentor_utils.global_scaling(
+        gt_boxes, points, scale_factor = augmentor_utils.global_scaling(
             data_dict['gt_boxes'], data_dict['points'], config['WORLD_SCALE_RANGE']
         )
         
         data_dict['gt_boxes'] = gt_boxes
         data_dict['points'] = points
+        data_dict['pcd_scale_factor'] = scale_factor
+        data_dict['transformation_3d_flow'].append('S')
         return data_dict
     
     def random_image_flip(self, data_dict=None, config=None):
@@ -106,13 +110,15 @@ class DataAugmentor(object):
             return data_dict
         gt_boxes, points = data_dict['gt_boxes'], data_dict['points']
         for cur_axis in config['ALONG_AXIS_LIST']:
-            assert cur_axis in ['x', 'y', 'z']
-            gt_boxes, points = getattr(augmentor_utils, 'random_translation_along_%s' % cur_axis)(
+            assert cur_axis in ['x', 'y', 'z','xyz']
+            gt_boxes, points, offset = getattr(augmentor_utils, 'random_translation_along_%s' % cur_axis)(
                 gt_boxes, points, noise_translate_std,
             )
 
         data_dict['gt_boxes'] = gt_boxes
         data_dict['points'] = points
+        data_dict['pcd_trans'] = offset
+        data_dict['transformation_3d_flow'].append('T')
         return data_dict
 
     def random_local_translation(self, data_dict=None, config=None):
@@ -223,6 +229,23 @@ class DataAugmentor(object):
                                                                  pyramids)
         data_dict['gt_boxes'] = gt_boxes
         data_dict['points'] = points
+        return data_dict
+    
+    
+    def resize(self, data_dict=None, config=None):
+        
+        if data_dict is None:
+            return partial(self.resize, config=config)
+        
+        data_dict = augmentor_utils.resize(data_dict, config)
+        return data_dict
+    
+    def normalize(self, data_dict=None, config=None):
+        
+        
+        if data_dict is None:
+            return partial(self.normalize, config=config)
+        data_dict = augmentor_utils.normalize(data_dict, config)
         return data_dict
     
     def forward(self, data_dict):

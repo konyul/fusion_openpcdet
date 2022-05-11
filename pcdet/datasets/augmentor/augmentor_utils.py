@@ -3,8 +3,8 @@ import math
 import copy
 from ...utils import common_utils
 from ...utils import box_utils
-
-
+from pcdet.datasets.augmentor.transforms import Resize_kitti, Normalize_kitti
+import mmcv
 def random_flip_along_x(gt_boxes, points):
     """
     Args:
@@ -52,16 +52,16 @@ def global_rotation(gt_boxes, points, rot_range):
     Returns:
     """
     noise_rotation = np.random.uniform(rot_range[0], rot_range[1])
-    points = common_utils.rotate_points_along_z(points[np.newaxis, :, :], np.array([noise_rotation]))[0]
+    points, rot_mat = common_utils.rotate_points_along_z_v2(points[np.newaxis, :, :], np.array([noise_rotation]))
     gt_boxes[:, 0:3] = common_utils.rotate_points_along_z(gt_boxes[np.newaxis, :, 0:3], np.array([noise_rotation]))[0]
     gt_boxes[:, 6] += noise_rotation
     if gt_boxes.shape[1] > 7:
-        gt_boxes[:, 7:9] = common_utils.rotate_points_along_z(
+        gt_boxes[:,7:9] = common_utils.rotate_points_along_z(
             np.hstack((gt_boxes[:, 7:9], np.zeros((gt_boxes.shape[0], 1))))[np.newaxis, :, :],
             np.array([noise_rotation])
         )[0][:, 0:2]
 
-    return gt_boxes, points
+    return gt_boxes, points, rot_mat
 
 
 def global_scaling(gt_boxes, points, scale_range):
@@ -78,7 +78,7 @@ def global_scaling(gt_boxes, points, scale_range):
     points[:, :3] *= noise_scale
     gt_boxes[:, :6] *= noise_scale
 
-    return gt_boxes, points
+    return gt_boxes, points, noise_scale
 
 
 def random_image_flip_horizontal(image, depth_map, gt_boxes, calib):
@@ -173,6 +173,24 @@ def random_translation_along_z(gt_boxes, points, offset_std):
     gt_boxes[:, 2] += offset
 
     return gt_boxes, points
+
+def random_translation_along_xyz(gt_boxes, points, offset_std):
+    """
+    Args:
+        gt_boxes: (N, 7), [x, y, z, dx, dy, dz, heading, [vx], [vy]]
+        points: (M, 3 + C),
+        offset_std: float
+    Returns:
+    """
+    translation_std = np.array(offset_std, dtype=np.float32)
+    offset = np.random.normal(scale=translation_std, size=3).T
+    #offset = np.random.normal(0, offset_std, 1)
+    
+    points[:, :3] += offset
+    gt_boxes[:, :3] += offset
+
+    return gt_boxes, points, offset
+
 
 
 def random_local_translation_along_x(gt_boxes, points, offset_range):
@@ -681,3 +699,31 @@ def local_pyramid_swap(gt_boxes, points, prob, max_num_pts, pyramids=None):
             points_res = np.concatenate(points_res, axis=0)
             points = np.concatenate([remain_points, points_res], axis=0)
     return gt_boxes, points
+
+
+
+def resize(data_dict, config):
+    """
+    Args:
+        gt_boxes: (N, 7 + C), [x, y, z, dx, dy, dz, heading, [vx], [vy]]
+        points: (M, 3 + C)
+    Returns:
+    """
+    config['resize_cfg']['img_scale'] = list(map(tuple,config['resize_cfg']['img_scale']))
+    resize = Resize_kitti(img_scale=config['resize_cfg']['img_scale'], multiscale_mode=config['resize_cfg']['multiscale_mode'], keep_ratio=config['resize_cfg']['keep_ratio'])
+    data_dict = resize(data_dict)
+    data_dict.pop('scale_idx')
+    return data_dict
+
+
+def normalize(data_dict, config):
+    """
+    Args:
+        gt_boxes: (N, 7 + C), [x, y, z, dx, dy, dz, heading, [vx], [vy]]
+        points: (M, 3 + C)
+    Returns:
+    """
+    
+    normalize = Normalize_kitti(mean=config['img_norm_cfg']['mean'], std=config['img_norm_cfg']['std'], to_rgb=config['img_norm_cfg']['to_rgb'])
+    data_dict = normalize(data_dict)
+    return data_dict
