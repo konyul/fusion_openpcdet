@@ -12,6 +12,7 @@ git clone https://github.com/open-mmlab/mmdetection3d.git in the fusion_openpcde
 in fusion_openpcdet repository,
 
 pip install -r requirement.txt
+
 python setup.py develop
 
 in mmdetection3d repository,
@@ -19,11 +20,13 @@ in mmdetection3d repository,
 pip install -v -e.
 
 in fusion_openpcdet repository
+
 python setup.py develop
 
 pip install mmcv-full==1.4.8 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.8.0/index.html
 
 pip install mmdet==2.19.0
+
 pip install mmsegmentation==0.20.0
 
 apt-get install libgl1-mesa-glx
