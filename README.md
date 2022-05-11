@@ -9,27 +9,33 @@ git clone https://github.com/konyul/fusion_openpcdet.git
 git clone https://github.com/open-mmlab/mmdetection3d.git in the fusion_openpcdet repository
 
 
-in fusion_openpcdet repository,
+fusion_openpcdet repository,
+{
+  pip install -r requirement.txt
 
-pip install -r requirement.txt
+  python setup.py develop
+}
 
-python setup.py develop
+mmdetection3d repository,
+{
+  pip install -v -e.
+}
 
-in mmdetection3d repository,
+fusion_openpcdet repository
 
-pip install -v -e.
+{
+  python setup.py develop
 
-in fusion_openpcdet repository
+  pip install mmcv-full==1.4.8 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.8.0/index.html
 
-python setup.py develop
+  pip install mmdet==2.19.0
 
-pip install mmcv-full==1.4.8 -f https://download.openmmlab.com/mmcv/dist/cu111/torch1.8.0/index.html
+  pip install mmsegmentation==0.20.0
 
-pip install mmdet==2.19.0
+  apt-get install libgl1-mesa-glx
+}
 
-pip install mmsegmentation==0.20.0
 
-apt-get install libgl1-mesa-glx
 
 check if pcdet/ops/voxel/voxel_layer is compiled
   if not python setup.py develop on fusion_openpcdet repository
