@@ -12,9 +12,11 @@ git clone https://github.com/open-mmlab/mmdetection3d.git in the fusion_openpcde
 fusion_openpcdet repository,
 
 {
+  
   pip install -r requirement.txt
 
   python setup.py develop
+  
 }
 
 mmdetection3d repository,
