@@ -1,5 +1,5 @@
 DATASET: 'FusionKittiDataset_PGD'
-DATA_PATH: '/spalab/pgd_0509/OpenPCDet/data/kitti'
+DATA_PATH: '/mnt/sda1/kypark/fusion_openpcdet/data/kitti'
 
 POINT_CLOUD_RANGE: [0, -40, -3, 70.4, 40, 1]
 

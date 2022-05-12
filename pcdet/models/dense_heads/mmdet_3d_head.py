@@ -109,9 +109,6 @@ class MMDet3DHead(nn.Module):
         
 
 
-        if len(data_dict['gt_boxes2d'][0]) != len(data_dict['gt_boxes_cam'][0]):
-            import pdb;pdb.set_trace()
-
         losses = self.bbox_head.forward_train(data_dict['img_feats'], \
         img_metas, data_dict['gt_boxes2d'], data_dict['mmdet_2d_gt_labels'],\
              data_dict['gt_boxes_cam'], data_dict['mmdet_gt_labels'],\

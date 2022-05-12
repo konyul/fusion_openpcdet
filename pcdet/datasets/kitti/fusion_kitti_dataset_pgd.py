@@ -470,6 +470,14 @@ class FusionKittiDataset_PGD(DatasetTemplate):
                     for k in range(batch_size):
                         batch_gt_boxes3d[k, :val[k].__len__(), :] = val[k]
                     ret[key] = batch_gt_boxes3d
+
+                elif key in ['gt_boxes_no3daug']:
+                    max_gt = max([len(x) for x in val])
+                    batch_gt_boxes3d = np.zeros((batch_size, max_gt, val[0].shape[-1]), dtype=np.float32)
+                    for k in range(batch_size):
+                        batch_gt_boxes3d[k, :val[k].__len__(), :] = val[k]
+                    ret[key] = batch_gt_boxes3d
+
                 elif key in ['gt_boxes2d']:
                     max_boxes = 0
                     max_boxes = max([len(x) for x in val])
