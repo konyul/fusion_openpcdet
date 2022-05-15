@@ -17,3 +17,4 @@ venv/
 output
 version.py
 mmdetection3d
+ckpt
