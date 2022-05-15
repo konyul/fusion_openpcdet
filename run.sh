@@ -1,0 +1,2 @@
+#CUDA_VISIBLE_DEVICES=0,1 python3 -m torch.distributed.launch --nproc_per_node=2 tools/train.py --launcher pytorch --cfg_file tools/cfgs/kitti_models/MVXNet_PGD.yaml --pretrained_model second_7862_union_pgd.pth --fix_random_seed
+CUDA_VISIBLE_DEVICES=0,1 python3 -m torch.distributed.launch --nproc_per_node=2 tools/test.py --launcher pytorch --cfg_file tools/cfgs/kitti_models/MVXNet_PGD.yaml --ckpt output/cfgs/kitti_models/MVXNet_PGD/default/ckpt/checkpoint_epoch_80.pth

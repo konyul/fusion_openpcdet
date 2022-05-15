@@ -9,7 +9,7 @@ class ImgExtraction(nn.Module):
     def __init__(self, model_cfg, **kwargs):
         super().__init__()
         self.model_cfg = model_cfg
-        self.model = ResNet(**model_cfg.BACKBONE_ARGS)
+        self.backbone = ResNet(**model_cfg.BACKBONE_ARGS)
         self.neck = FPN(**model_cfg.NECK_ARGS)
         
     def forward(self, batch_dict, **kwargs):
@@ -23,7 +23,7 @@ class ImgExtraction(nn.Module):
                 voxel_features: (B, C, Z, Y, X), Image voxel features
         """
         images = batch_dict["images"]
-        features = self.model(images)
+        features = self.backbone(images)
         features = self.neck(features)
         batch_dict["img_feats"] = features
         # mmcv.imwrite(images[0].permute(1,2,0).cpu().numpy(),"aaa.jpg")

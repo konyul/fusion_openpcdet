@@ -411,6 +411,7 @@ class FusionKittiDataset_PGD(DatasetTemplate):
             })
 
             td_gt_boxes = np.concatenate((annos["bbox"], gt_classes.reshape(-1, 1).astype(np.float32)), axis=1)
+            td_gt_boxes = td_gt_boxes[gt_boxes_mask]
             # if "gt_boxes2d" in get_item_list:
             #     input_dict['gt_boxes2d'] = annos["bbox"]
             if "gt_boxes2d" in get_item_list:
@@ -464,28 +465,13 @@ class FusionKittiDataset_PGD(DatasetTemplate):
                     #     coors.append(coor_pad)
                     #ret[key] = np.concatenate(coors, axis=0)
                     ret[key] = val
-                elif key in ['gt_boxes']:
+                elif key in ['gt_boxes', 'gt_boxes_no3daug', 'gt_boxes2d']:
                     max_gt = max([len(x) for x in val])
                     batch_gt_boxes3d = np.zeros((batch_size, max_gt, val[0].shape[-1]), dtype=np.float32)
                     for k in range(batch_size):
                         batch_gt_boxes3d[k, :val[k].__len__(), :] = val[k]
                     ret[key] = batch_gt_boxes3d
 
-                elif key in ['gt_boxes_no3daug']:
-                    max_gt = max([len(x) for x in val])
-                    batch_gt_boxes3d = np.zeros((batch_size, max_gt, val[0].shape[-1]), dtype=np.float32)
-                    for k in range(batch_size):
-                        batch_gt_boxes3d[k, :val[k].__len__(), :] = val[k]
-                    ret[key] = batch_gt_boxes3d
-
-                elif key in ['gt_boxes2d']:
-                    max_boxes = 0
-                    max_boxes = max([len(x) for x in val])
-                    batch_boxes2d = np.zeros((batch_size, max_boxes, val[0].shape[-1]), dtype=np.float32)
-                    for k in range(batch_size):
-                        if val[k].size > 0:
-                            batch_boxes2d[k, :val[k].__len__(), :] = val[k]
-                    ret[key] = batch_boxes2d
                 elif key in ["images", "depth_maps"]:
                     # Get largest image size (H, W)
                     max_h = 0
